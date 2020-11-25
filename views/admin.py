@@ -18,7 +18,8 @@ def login():
     #     photo='http://toutiao-img.itheima.net/FuyELvGh8jbise6dfoEr0W7luPLq',
     #     gender=1,
     #     name='zhangsan',
-    #     intro='zhangsanfeng'
+    #     intro='zhangsanfeng',
+    #     email='zhangsan@qq.com'
     # ).save()
 
     if not request.json.get("mobile"):
@@ -42,18 +43,17 @@ def login():
     if not check_password_hash(user.code, request.json.get("code")):
         return jsonify({"error": "Invalid password"}), 401
 
-    # token = jwt.encode({
-    #     "userid": str(user.id),
-    #     "username": user.username,
-    #     "email": user.email,
-    #     "password": user.password,
-    #     "created": str(user.created)
-    # }, app.config["SECRET_KEY"])
+    token = jwt.encode({
+        "userid": str(user.id),
+        "name": user.name,
+        "email": user.email,
+        "created": str(user.created)
+    }, app.config["SECRET_KEY"]).decode('utf-8')
 
     return jsonify({
         "message": 'OK',
         "data": {
             "user": user.name,
-            "token": "xxxxxxxxxxxxxxxx",
+            "token": token,
         }
     })
