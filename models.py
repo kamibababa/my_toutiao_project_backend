@@ -4,6 +4,7 @@ from mongoengine import *
 
 connect("yesterday_toutiao")
 
+
 class User(Document):
     mobile = StringField(max_length=11, unique=True)
     name = StringField(required=True, unique=True)
@@ -13,6 +14,7 @@ class User(Document):
     gender = IntField(required=True)
     intro = StringField(required=True)
     email = StringField(required=True, unique=True)
+
 
     def to_public_json(self):
         data = {
