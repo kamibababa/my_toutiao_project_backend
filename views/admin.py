@@ -7,7 +7,24 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import app
 
-#
+def login_required(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if "Authorization" in request.headers:
+            # Check whether token was sent
+            authorization_header = request.headers["Authorization"]
+
+            # Check whether token is valid
+            try:
+                token = authorization_header.split(" ")[1]
+                user = jwt.decode(token, app.config["SECRET_KEY"])
+            except:
+                return jsonify({"error": "you are not logged in"}), 401
+
+            return f(userid=user["userid"], *args, **kwargs)
+        else:
+            return jsonify({"error": "you are not logged in"}), 401
+    return wrap
 
 @app.route("/mp/v1_0/authorizations", methods=["POST"])
 def login():
@@ -59,11 +76,15 @@ def login():
     })
 
 
-
 @app.route("/mp/v1_0/user/profile", methods=["GET"])
-def get_user_profile():
-    user = User.objects(name='zhangsan').first()
+@login_required
+def get_user_profile(userid):
+    user = User.objects(id=userid).first()
     return jsonify({
         "message": 'OK',
         "data": user.to_public_json()
     })
+
+
+
+
