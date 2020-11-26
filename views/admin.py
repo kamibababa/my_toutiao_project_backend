@@ -150,6 +150,22 @@ def upload(userid):
 def images_rsp(filename):
     return send_from_directory(config.image_upload_folder, filename)
 
+
+# {"message": "OK", "data": {"id": 30840, "collect": true}}
+@app.route("/mp/v1_0/user/images/<string:imageId>", methods=["PUT"])
+@login_required
+def collectImage(userid,imageId):
+    img = Img.objects(id=imageId).first()
+    img.is_collected = request.json.get('collect')
+    img.save()
+    return jsonify({
+        "message": 'OK',
+        "data": {
+            "id": str(img.id),
+            "collect": img.is_collected
+        }
+    })
+
 @app.route("/mp/v1_0/user/images")
 @login_required
 def get_images(userid):
