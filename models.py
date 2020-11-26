@@ -52,3 +52,16 @@ class Channel(Document):
             "name": self.name,
         }
         return data
+
+class Cover(Document):
+    type = IntField(required=True)
+    images = ListField(StringField(max_length=200))
+
+class Article(Document):
+    title = StringField(max_length=120, required=True)
+    content = StringField(max_length=10000)
+    channel = ReferenceField(Channel, reverse_delete_rule=CASCADE)
+    cover = ReferenceField(Cover)
+    user = ReferenceField(User, reverse_delete_rule=CASCADE)
+    created = DateTimeField(required=True, default=datetime.datetime.now())
+    status = IntField(required=True)
