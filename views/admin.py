@@ -154,19 +154,31 @@ def images_rsp(filename):
 
 
 # {"message": "OK", "data": {"id": 30840, "collect": true}}
-@app.route("/mp/v1_0/user/images/<string:imageId>", methods=["PUT"])
+@app.route("/mp/v1_0/user/images/<string:imageId>", methods=["PUT","DELETE"])
 @login_required
 def collectImage(userid,imageId):
-    img = Img.objects(id=imageId).first()
-    img.is_collected = request.json.get('collect')
-    img.save()
-    return jsonify({
-        "message": 'OK',
-        "data": {
-            "id": str(img.id),
-            "collect": img.is_collected
-        }
-    })
+    print(request.method)
+    if request.method == 'PUT':
+        img = Img.objects(id=imageId).first()
+        img.is_collected = request.json.get('collect')
+        img.save()
+        return jsonify({
+            "message": 'OK',
+            "data": {
+                "id": str(img.id),
+                "collect": img.is_collected
+            }
+        })
+    elif request.method == 'DELETE':
+        img = Img.objects(id=imageId).first()
+        img.delete()
+        return jsonify({
+            "message": 'OK',
+            "data": {
+                "id": str(img.id),
+                "collect": img.is_collected
+            }
+        })
 
 @app.route("/mp/v1_0/user/images")
 @login_required
