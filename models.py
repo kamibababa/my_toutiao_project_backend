@@ -4,6 +4,17 @@ from mongoengine import *
 
 connect("yesterday_toutiao")
 
+class CustomQuerySet(QuerySet):
+    def to_public_json(self):
+        result = []
+        try:
+            for doc in self:
+                jsonDic = doc.to_public_json()
+                result.append(jsonDic)
+        except:
+            print('error')
+
+        return result
 
 class User(Document):
     mobile = StringField(max_length=11, unique=True)
@@ -27,4 +38,17 @@ class User(Document):
             "email": self.email
         }
 
+        return data
+
+
+class Channel(Document):
+    name = StringField(max_length=120, required=True)
+
+    meta = {'queryset_class': CustomQuerySet}
+
+    def to_public_json(self):
+        data = {
+            "id": str(self.id),
+            "name": self.name,
+        }
         return data
