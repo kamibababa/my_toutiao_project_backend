@@ -82,3 +82,4 @@ class Img(Document):
             "is_collected" : self.is_collected
         }
         return data
+

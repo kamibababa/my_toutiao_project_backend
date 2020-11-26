@@ -6,6 +6,8 @@ import jwt
 from flask import jsonify, request, send_from_directory
 from functools import wraps
 
+from mongoengine import Q
+
 import config
 from models import User, Channel, Img
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -170,7 +172,12 @@ def collectImage(userid,imageId):
 @login_required
 def get_images(userid):
     user = User.objects(id=userid).first()
-    imgs = Img.objects(user=user)
+    collect = request.args.get("collect")
+    if collect == 'true':
+        imgs = Img.objects(Q(user=user) & Q(is_collected=True))
+    elif collect == 'false':
+        imgs = Img.objects(user=user)
+
     page = int(request.args.get("page"))
     per_page = int(request.args.get("per_page"))
 
