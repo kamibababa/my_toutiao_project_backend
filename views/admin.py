@@ -147,6 +147,25 @@ def upload(userid):
     })
 
 @app.route("/file/<string:filename>")
-def images_get(filename):
+def images_rsp(filename):
     return send_from_directory(config.image_upload_folder, filename)
 
+@app.route("/mp/v1_0/user/images")
+@login_required
+def get_images(userid):
+    user = User.objects(id=userid).first()
+    imgs = Img.objects(user=user)
+    page = int(request.args.get("page"))
+    per_page = int(request.args.get("per_page"))
+
+    paginated_imgs = imgs.skip((page - 1) * per_page).limit(per_page)
+
+    return jsonify({
+        "message": 'OK',
+        "data": {
+            "total_count": imgs.count(),
+            "page": page,
+            "per_page": per_page,
+            "results": paginated_imgs.to_public_json()
+        }
+    })

@@ -73,9 +73,12 @@ class Img(Document):
     url = StringField(max_length=200, required=True)
     is_collected = BooleanField(required=True,default=False)
 
+    meta = {'queryset_class': CustomQuerySet}
+
     def to_public_json(self):
         data = {
             "id": str(self.id),
-            "url": config.base_url + self.url
+            "url": config.base_url + self.url,
+            "is_collected" : self.is_collected
         }
         return data
