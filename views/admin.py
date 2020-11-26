@@ -1,8 +1,13 @@
+import os
+import uuid
+
 import jwt
 
-from flask import jsonify, request
+from flask import jsonify, request, send_from_directory
 from functools import wraps
-from models import User,Channel
+
+import config
+from models import User, Channel, Img
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import app
@@ -113,5 +118,35 @@ def get_channels(userid):
         }
     })
 
+@app.route("/mp/v1_0/user/images", methods=["POST"])
+@login_required
+def upload(userid):
+    user = User.objects(id=userid).first()
+    image = request.files.get("image")
+    if image:
+        if not image.filename.endswith(tuple([".jpg", ".png"])):
+            return jsonify({"error": "Image is not valid"}), 409
 
+        # Generate random filename
+        filename = str(uuid.uuid4()).replace("-", "") + "." + image.filename.split(".")[-1]
+
+        if not os.path.isdir(config.image_upload_folder):
+            os.makedirs(config.image_upload_folder)
+
+        image.save(os.path.join(config.image_upload_folder, filename))
+        img = Img(
+            url=filename,
+            user=user
+        ).save()
+    else:
+        filename = None
+
+    return jsonify({
+        "message": 'OK',
+        "data": img.to_public_json()
+    })
+
+@app.route("/file/<string:filename>")
+def images_get(filename):
+    return send_from_directory(config.image_upload_folder, filename)
 

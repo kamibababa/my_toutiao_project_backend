@@ -2,6 +2,8 @@ import datetime
 
 from mongoengine import *
 
+import config
+
 connect("yesterday_toutiao")
 
 class CustomQuerySet(QuerySet):
@@ -65,3 +67,15 @@ class Article(Document):
     user = ReferenceField(User, reverse_delete_rule=CASCADE)
     created = DateTimeField(required=True, default=datetime.datetime.now())
     status = IntField(required=True)
+
+class Img(Document):
+    user = ReferenceField(User, reverse_delete_rule=CASCADE)
+    url = StringField(max_length=200, required=True)
+    is_collected = BooleanField(required=True,default=False)
+
+    def to_public_json(self):
+        data = {
+            "id": str(self.id),
+            "url": config.base_url + self.url
+        }
+        return data
