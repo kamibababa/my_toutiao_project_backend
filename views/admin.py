@@ -299,3 +299,41 @@ def getArticle(userid, article_id):
         "message": 'OK',
         "data": article.to_public_json_ex()
     })
+
+@app.route("/mp/v1_0/articles/<string:article_id>", methods=["PUT"])
+@login_required
+def updateArticle(userid, article_id):
+    user = User.objects(id=userid).first()
+    draft = request.args.get('draft')
+    if draft == "false":
+        status = 2  # 发布并审核通过
+    else:
+        status = 0  # 草稿
+    body = request.json
+
+    channel_id = body.get('channel_id')
+    channel = Channel.objects(id=channel_id).first()
+
+    article = Article.objects(id=article_id).first()
+
+    old_cover = article.cover
+    old_cover.delete()
+
+    cover = Cover(
+        type=body.get("cover")['type'],
+        images=body.get("cover")['images']
+    ).save()
+
+    article.title = body.get("title")
+    article.channel = channel
+    article.content = body.get("content")
+    article.cover = cover
+    article.status = status
+
+    article.save()
+
+    return jsonify({
+        "message": 'OK',
+        "data": {
+        }
+    })
