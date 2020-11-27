@@ -337,3 +337,15 @@ def updateArticle(userid, article_id):
         "data": {
         }
     })
+
+@app.route("/mp/v1_0/articles/<string:article_id>", methods=["DELETE"])
+@login_required
+def deleteArticle(userid, article_id):
+    article = Article.objects(id=article_id).first()
+    old_cover = article.cover
+    old_cover.delete()
+    article.delete()
+    return jsonify({
+        "message": 'OK',
+        "data": {}
+    })
