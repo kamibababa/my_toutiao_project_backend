@@ -212,7 +212,7 @@ def addArticle(userid):
 
     draft = request.args.get('draft')
     if draft == "false":
-        status = 1 #发布并审核通过
+        status = 2 #发布并审核通过
     else:
         status = 0 #草稿
     body = request.json
@@ -238,5 +238,26 @@ def addArticle(userid):
     return jsonify({
         "message": 'OK',
         "data": {
+        }
+    })
+
+@app.route("/mp/v1_0/articles", methods=["GET"])
+@login_required
+def getArticles(userid):
+    user = User.objects(id=userid).first()
+    page = int(request.args.get("page"))
+    per_page = int(request.args.get("per_page"))
+
+    articles = Article.objects(user=user)
+    paginated_articles = articles.skip((page - 1) * per_page).limit(per_page)
+
+    result = paginated_articles.to_public_json()
+    return jsonify({
+        "message": 'OK',
+        "data": {
+            "total_count": articles.count(),
+            "page": page,
+            "per_page": per_page,
+            "results": paginated_articles.to_public_json()
         }
     })

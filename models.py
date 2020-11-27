@@ -59,6 +59,14 @@ class Cover(Document):
     type = IntField(required=True)
     images = ListField(StringField(max_length=200))
 
+    def to_public_json(self):
+        data = {
+            "images": self.images,
+            "type": self.type
+        }
+        return data
+
+
 class Article(Document):
     title = StringField(max_length=120, required=True)
     content = StringField(max_length=10000)
@@ -68,7 +76,17 @@ class Article(Document):
     created = DateTimeField(required=True, default=datetime.datetime.now())
     status = IntField(required=True)
 
+    meta = {'queryset_class': CustomQuerySet}
 
+    def to_public_json(self):
+        data = {
+            "id": str(self.id),
+            "status": self.status,
+            "title" : self.title,
+            "pubdate":self.created,
+            "cover":self.cover.to_public_json()
+        }
+        return data
 
 class Img(Document):
     user = ReferenceField(User, reverse_delete_rule=CASCADE)
