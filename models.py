@@ -88,6 +88,16 @@ class Article(Document):
         }
         return data
 
+    def to_public_json_ex(self):
+        data = {
+            "id": str(self.id),
+            "title" : self.title,
+            "content": self.content,
+            "channel_id":str(self.channel.id),
+            "cover":self.cover.to_public_json()
+        }
+        return data
+
 class Img(Document):
     user = ReferenceField(User, reverse_delete_rule=CASCADE)
     url = StringField(max_length=200, required=True)

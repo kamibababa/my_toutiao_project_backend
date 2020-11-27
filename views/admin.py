@@ -259,10 +259,9 @@ def getArticles(userid):
         begin_pubdate = request.args.get("begin_pubdate")
     if request.args.get("end_pubdate") != None:
         end_pubdate = request.args.get("end_pubdate")
-
     if begin_pubdate != None and channel_id != None and status != None:
-        articles = Article.objects(user=user,status=status,channel=channel_id
-                                   ,created__gte=begin_pubdate, created__lte=end_pubdate)
+        articles = Article.objects(user=user, status=status, channel=channel_id
+                                   , created__gte=begin_pubdate, created__lte=end_pubdate)
     elif begin_pubdate != None and channel_id != None:
         articles = Article.objects(user=user, channel=channel_id
                                    , created__gte=begin_pubdate, created__lte=end_pubdate)
@@ -290,4 +289,13 @@ def getArticles(userid):
             "per_page": per_page,
             "results": paginated_articles.to_public_json()
         }
+    })
+
+@app.route("/mp/v1_0/articles/<string:article_id>", methods=["GET"])
+@login_required
+def getArticle(userid, article_id):
+    article = Article.objects(id=article_id).first()
+    return jsonify({
+        "message": 'OK',
+        "data": article.to_public_json_ex()
     })
