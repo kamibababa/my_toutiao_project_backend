@@ -9,7 +9,7 @@ from functools import wraps
 from mongoengine import Q
 
 import config
-from models import User, Channel, Img
+from models import User, Channel, Img, Article, Cover
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import app
@@ -202,5 +202,41 @@ def get_images(userid):
             "page": page,
             "per_page": per_page,
             "results": paginated_imgs.to_public_json()
+        }
+    })
+
+@app.route("/mp/v1_0/articles", methods=["POST"])
+@login_required
+def addArticle(userid):
+    user = User.objects(id=userid).first()
+
+    draft = request.args.get('draft')
+    if draft == "false":
+        status = 1 #发布并审核通过
+    else:
+        status = 0 #草稿
+    body = request.json
+    print(draft)
+    print(body)
+    print(body["cover"])
+    print(body.get("cover"))
+
+    cover = Cover(
+        type=body.get("cover")['type'],
+        images=body.get("cover")['images']
+    ).save()
+
+    article = Article(
+        title=body.get("title"),
+        channel=body.get('channel_id'),
+        content=body.get("content"),
+        user=user,
+        cover=cover,
+        status=status,
+    ).save()
+
+    return jsonify({
+        "message": 'OK',
+        "data": {
         }
     })

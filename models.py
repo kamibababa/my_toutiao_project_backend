@@ -68,6 +68,8 @@ class Article(Document):
     created = DateTimeField(required=True, default=datetime.datetime.now())
     status = IntField(required=True)
 
+
+
 class Img(Document):
     user = ReferenceField(User, reverse_delete_rule=CASCADE)
     url = StringField(max_length=200, required=True)
