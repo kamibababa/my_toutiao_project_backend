@@ -247,11 +247,41 @@ def getArticles(userid):
     user = User.objects(id=userid).first()
     page = int(request.args.get("page"))
     per_page = int(request.args.get("per_page"))
+    status = None
+    channel_id = None
+    begin_pubdate = None
+    end_pubdate = None
+    if request.args.get("status") != None:
+        status = int(request.args.get("status"))
+    if request.args.get("channel_id") != None:
+        channel_id = request.args.get("channel_id")
+    if request.args.get("begin_pubdate") != None:
+        begin_pubdate = request.args.get("begin_pubdate")
+    if request.args.get("end_pubdate") != None:
+        end_pubdate = request.args.get("end_pubdate")
 
-    articles = Article.objects(user=user)
+    if begin_pubdate != None and channel_id != None and status != None:
+        articles = Article.objects(user=user,status=status,channel=channel_id
+                                   ,created__gte=begin_pubdate, created__lte=end_pubdate)
+    elif begin_pubdate != None and channel_id != None:
+        articles = Article.objects(user=user, channel=channel_id
+                                   , created__gte=begin_pubdate, created__lte=end_pubdate)
+    elif begin_pubdate != None and status != None:
+        articles = Article.objects(user=user, status=status
+                                   , created__gte=begin_pubdate, created__lte=end_pubdate)
+    elif status != None and channel_id != None:
+        articles = Article.objects(user=user, status=status, channel=channel_id)
+    elif status != None:
+        articles = Article.objects(user=user, status=status)
+    elif begin_pubdate != None:
+        articles = Article.objects(user=user, created__gte=begin_pubdate, created__lte=end_pubdate)
+    elif channel_id != None:
+        articles = Article.objects(user=user,channel=channel_id)
+    else:
+        articles = Article.objects(user=user)
+
     paginated_articles = articles.skip((page - 1) * per_page).limit(per_page)
 
-    result = paginated_articles.to_public_json()
     return jsonify({
         "message": 'OK',
         "data": {
