@@ -9,6 +9,7 @@ CORS(app)
 
 
 from views.admin import *
+from views.api import *
 
 @app.errorhandler(404)
 def page_not_found(e):
