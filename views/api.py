@@ -197,6 +197,6 @@ def get_articles_by_channelid(userid):
                     "total_count": articles.count(),
                     "page": page,
                     "per_page": per_page,
-                    "results": paginated_articles.to_public_json()
+                    "results": paginated_articles.to_public_json_client()
                 }
             })

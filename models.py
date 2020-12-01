@@ -19,6 +19,17 @@ class CustomQuerySet(QuerySet):
 
         return result
 
+    def to_public_json_client(self):
+        result = []
+        try:
+            for doc in self:
+                jsonDic = doc.to_public_json_client()
+                result.append(jsonDic)
+        except:
+            print('error')
+
+        return result
+
 class Channel(Document):
     name = StringField(max_length=120, required=True)
 
@@ -95,6 +106,17 @@ class Article(Document):
             "title" : self.title,
             "content": self.content,
             "channel_id":str(self.channel.id),
+            "cover":self.cover.to_public_json()
+        }
+        return data
+
+    def to_public_json_client(self):
+        data = {
+            "art_id": str(self.id),
+            "status": self.status,
+            "title" : self.title,
+            "pubdate":self.created,
+            "aut_name":self.user.name,
             "cover":self.cover.to_public_json()
         }
         return data
