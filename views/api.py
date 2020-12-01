@@ -200,3 +200,24 @@ def get_articles_by_channelid(userid):
                     "results": paginated_articles.to_public_json_client()
                 }
             })
+
+@app.route("/app/v1_0/search", methods=["GET"])
+@login_required
+def getArticlesBySearchWord(userid):
+    page = int(request.args.get("page"))
+    per_page = int(request.args.get("per_page"))
+    keyword = request.args.get("q")
+
+    articles = Article.objects(Q(title__contains=keyword) | Q(content__contains=keyword))
+
+    paginated_articles = articles.skip((page - 1) * per_page).limit(per_page)
+
+    return jsonify({
+        "message": 'OK',
+        "data": {
+            "total_count": articles.count(),
+            "page": page,
+            "per_page": per_page,
+            "results": paginated_articles.to_public_json_client()
+        }
+    })
