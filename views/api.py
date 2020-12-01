@@ -1,5 +1,6 @@
 import os
 import uuid
+from datetime import datetime
 
 import jwt
 
@@ -13,7 +14,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import app
 from .common import login_required
-
 
 @app.route("/app/v1_0/authorizations", methods=["POST"])
 def app_login():
@@ -154,3 +154,48 @@ def delete_user_channel(userid,channelid):
         "message": 'OK',
         "data": {}
     })
+
+def datatime2timestamp(_date):
+    millisec = _date.timestamp() * 1000
+    return int(millisec)
+
+def timestamp2datatime(_timestamp):
+        d = datetime.fromtimestamp(_timestamp / 1000)
+        return d
+
+@app.route("/app/v1_1/articles", methods=["GET"])
+@login_required
+def get_articles_by_channelid(userid):
+    page = 1
+    per_page = 10
+    param = request.args
+    query_timestamp = param.get('timestamp')
+    print(query_timestamp)
+    _date = timestamp2datatime(int(query_timestamp))
+    articles = Article.objects(created__lt=_date).order_by("-created")
+
+    paginated_articles = articles.skip((page - 1) * per_page).limit(per_page)
+    if len(paginated_articles) <= 0:
+        return jsonify({
+            "message": 'OK',
+            "data": {
+                "pre_timestamp": 0,
+                "total_count": articles.count(),
+                "page": page,
+                "per_page": per_page,
+                "results": []
+            }
+        })
+    else:
+        pre_timestamp = datatime2timestamp(paginated_articles[len(paginated_articles) - 1].created)
+        print(pre_timestamp)
+        return jsonify({
+                "message": 'OK',
+                "data": {
+                    "pre_timestamp": pre_timestamp,
+                    "total_count": articles.count(),
+                    "page": page,
+                    "per_page": per_page,
+                    "results": paginated_articles.to_public_json()
+                }
+            })

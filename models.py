@@ -1,4 +1,5 @@
 import datetime
+import time
 
 from mongoengine import *
 
@@ -113,3 +114,37 @@ class Img(Document):
         }
         return data
 
+# 1589337751688
+
+# 1606806890174
+# 1606620445458
+# if __name__ == '__main__':
+    # article = Article.objects().first()
+    #
+    # millisec = article.created.timestamp() * 1000
+    # print(int(millisec))
+
+
+    # d = datetime.datetime.fromtimestamp(1606620445458 / 1000)
+    # # 精确到毫秒
+    # print(d)
+    # print(type(d))
+    # str1 = d.strftime("%Y-%m-%d %H:%M:%S.%f")
+    # print(str1)  # 2019-10-11 14:15:56.514000
+
+
+    # channel = Channel.objects(id='5fbf2345d757c18a921094b8').first()
+    # user = User.objects().first()
+    # cover = Cover.objects().first()
+    # for i in range(55):
+    #     time.sleep(1)
+    #     print(i)
+    #     article = Article(
+    #         title=f"ArticleArticleArticle{i}",
+    #         channel=channel,
+    #         content=f"ArticleArticleArticlecontentcontentcontent{i}",
+    #         user=user,
+    #         cover=cover,
+    #         status=2,
+    #         created=datetime.datetime.now()
+    #     ).save()
