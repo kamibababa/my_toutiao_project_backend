@@ -63,3 +63,42 @@ def app_login():
             "token": token,
         }
     })
+
+# {
+# 	"message": "OK",
+# 	"data": {
+# 		"name": "13911111116",
+# 		"photo": "http://toutiao-img.itheima.net/Fkj6tQi3xJwVXi1u2swCElotfdCi",
+# 		"is_media": false,
+# 		"intro": "",
+# 		"certi": "",
+# 		"art_count": 0,
+# 		"follow_count": 2,
+# 		"fans_count": 0,
+# 		"like_count": -4,
+# 		"id": 1159803119077425152
+# 	}
+# }
+
+@app.route("/app/v1_0/user", methods=["GET"])
+@login_required
+def get_user_info(userid):
+    userinfo = User.objects(id=userid).first()
+    if not userinfo:
+        return jsonify({"message": "Invalid user."})
+    else:
+        return jsonify({
+            "message": 'OK',
+            "data": {
+                "name": userinfo.name,
+                "photo": userinfo.photo,
+                "is_media": False,
+                "intro": userinfo.intro,
+                "certi": "",
+                "art_count": 5,
+                "follow_count": 5,
+                "fans_count": 5,
+                "like_count": 5,
+                "id": str(userinfo.id)
+            }
+        })

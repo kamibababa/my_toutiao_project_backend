@@ -18,6 +18,18 @@ class CustomQuerySet(QuerySet):
 
         return result
 
+class Channel(Document):
+    name = StringField(max_length=120, required=True)
+
+    meta = {'queryset_class': CustomQuerySet}
+
+    def to_public_json(self):
+        data = {
+            "id": str(self.id),
+            "name": self.name,
+        }
+        return data
+
 class User(Document):
     mobile = StringField(max_length=11, unique=True)
     name = StringField(required=True, unique=True)
@@ -27,7 +39,7 @@ class User(Document):
     gender = IntField(required=True)
     intro = StringField(required=True)
     email = StringField(required=True, unique=True)
-
+    channels = ListField(ReferenceField(Channel))
 
     def to_public_json(self):
         data = {
@@ -42,18 +54,6 @@ class User(Document):
 
         return data
 
-
-class Channel(Document):
-    name = StringField(max_length=120, required=True)
-
-    meta = {'queryset_class': CustomQuerySet}
-
-    def to_public_json(self):
-        data = {
-            "id": str(self.id),
-            "name": self.name,
-        }
-        return data
 
 class Cover(Document):
     type = IntField(required=True)
