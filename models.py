@@ -133,10 +133,10 @@ class Img(Document):
     # print(str1)  # 2019-10-11 14:15:56.514000
 
 
-    # channel = Channel.objects(id='5fbf2345d757c18a921094b8').first()
+    # channel = Channel.objects(id='5fbf2345d757c18a921094b9').first()
     # user = User.objects().first()
     # cover = Cover.objects().first()
-    # for i in range(55):
+    # for i in range(33):
     #     time.sleep(1)
     #     print(i)
     #     article = Article(
