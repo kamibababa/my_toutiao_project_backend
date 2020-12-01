@@ -73,7 +73,6 @@ def get_user_profile(userid):
         "data": user.to_public_json()
     })
 
-
 @app.route("/mp/v1_0/channels", methods=["GET"])
 @login_required
 def get_channels(userid):
