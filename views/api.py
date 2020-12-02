@@ -225,13 +225,21 @@ def getArticlesBySearchWord(userid):
 @app.route("/app/v1_0/articles/<string:articleid>", methods=["GET"])
 @login_required
 def get_article_by_id(userid,articleid):
-    # user = User.objects(id=userid).first()
+    user = User.objects(id=userid).first()
     article = Article.objects(id=articleid).first()
+    user_followed = user.user_followed
 
-    return jsonify({
+    if article.user.name in [u["name"] for u in user_followed]:
+        is_followed = True
+    else:
+        is_followed = False
+
+    json_result = {
         "message": 'OK',
         "data": article.to_public_json_client()
-    })
+    }
+    json_result['data']['is_followed'] = is_followed
+    return jsonify(json_result)
 
 @app.route("/app/v1_0/comments", methods=["POST"])
 @login_required
@@ -292,3 +300,53 @@ def get_comments_by_articleid(userid):
             "results": results
         }
     })
+
+@app.route("/app/v1_0/user/followings", methods=["POST"])
+@login_required
+def following_user(userid):
+    following_uid = request.json.get('target')
+    if userid == following_uid:
+        return jsonify({
+        "message": '不能关注自己',
+        "data": {}
+    })
+    userFollowing = User.objects(id=following_uid).first()
+    user = User.objects(id=userid).first()
+    user_followed = user.user_followed
+
+    user_followed.append(userFollowing)
+    user.save()
+    return jsonify({
+        "message": '关注成功',
+        "data": {
+            "target": following_uid
+        }
+    })
+
+@app.route("/app/v1_0/user/followings/<string:uid>", methods=["DELETE"])
+@login_required
+def cancel_following_user(userid, uid):
+    following_uid = uid
+
+    userFollowing = User.objects(pk=following_uid).first()
+    user = User.objects(id=userid).first()
+    user_followed = user.user_followed
+
+    if userFollowing.name in [u["name"] for u in user_followed]:
+        # User already agree
+        user_collect_index = [d.name for d in user_followed].index(userFollowing.name)
+        user_followed.pop(user_collect_index)
+        user.save()
+        return jsonify({
+            "message": '取消关注成功',
+            "data": {
+                "target":following_uid
+            }
+        })
+    else:
+        return jsonify({
+            "message": '取消关注失败，未关注该用户',
+            "data": {
+                "target": following_uid
+            }
+        })

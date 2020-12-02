@@ -2,6 +2,7 @@ import datetime
 import time
 
 from mongoengine import *
+from werkzeug.security import generate_password_hash
 
 import config
 
@@ -55,6 +56,7 @@ class User(Document):
     intro = StringField(required=True)
     email = StringField(required=True, unique=True)
     channels = ListField(ReferenceField(Channel))
+    user_followed = ListField(ReferenceField("User", reverse_delete_rule=CASCADE))
 
     def to_public_json(self):
         data = {
@@ -140,6 +142,7 @@ class Article(Document):
             "title" : self.title,
             "pubdate":self.created,
             "aut_name":self.user.name,
+            "aut_id":str(self.user.id),
             "content":self.content,
             "cover":self.cover.to_public_json()
         }
@@ -166,6 +169,16 @@ class Img(Document):
 # 1606620445458
 #1599394834
 # if __name__ == '__main__':
+    # hashed_password = generate_password_hash('246810')
+    # User(
+    #     mobile='13911111112',
+    #     code=hashed_password,
+    #     photo='http://toutiao-img.itheima.net/FuyELvGh8jbise6dfoEr0W7luPLq',
+    #     gender=1,
+    #     name='lisi',
+    #     intro='lisiguang',
+    #     email='lisiguang@qq.com'
+    # ).save()
     # article = Article.objects().first()
     #
     # millisec = article.created.timestamp() * 1000
