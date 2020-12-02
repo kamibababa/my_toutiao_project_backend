@@ -91,7 +91,7 @@ def get_user_info(userid):
             "message": 'OK',
             "data": {
                 "name": userinfo.name,
-                "photo": userinfo.photo,
+                "photo": config.base_url + userinfo.photo,
                 "is_media": False,
                 "intro": userinfo.intro,
                 "certi": "",
@@ -423,3 +423,32 @@ def update_user_profile(userid):
         "message": 'OK',
         "data": user.to_public_json()
     })
+
+@app.route("/app/v1_0/user/photo", methods=["PATCH"])
+@login_required
+def update_user_avatar(userid):
+    user = User.objects(id=userid).first()
+    image = request.files.get("photo")
+    if image:
+        # if not image.filename.endswith(tuple([".jpg", ".png", ".mp4"])):
+        #     return jsonify({"error": "Image is not valid"}), 409
+
+        # Generate random filename
+        filename = str(uuid.uuid4()).replace("-", "") + ".jpg"
+
+        if not os.path.isdir(config.image_upload_folder):
+            os.makedirs(config.image_upload_folder)
+
+        image.save(os.path.join(config.image_upload_folder, filename))
+        user.photo = filename
+        user.save()
+    else:
+        filename = None
+
+    return jsonify({
+            "message": "OK",
+            "data": {
+                "id": str(user.id),
+                "photo": filename
+            }
+        })

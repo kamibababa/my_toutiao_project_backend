@@ -66,7 +66,7 @@ class User(Document):
             "mobile":self.mobile,
             "name": self.name,
             "created": self.created.strftime("%Y-%m-%d %H:%M:%S"),
-            "photo": self.photo,
+            "photo": config.base_url + self.photo,
             "gender": self.gender,
             "intro": self.intro,
             "email": self.email
