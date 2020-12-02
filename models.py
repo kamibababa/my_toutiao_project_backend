@@ -30,6 +30,9 @@ class CustomQuerySet(QuerySet):
 
         return result
 
+
+
+
 class Channel(Document):
     name = StringField(max_length=120, required=True)
 
@@ -66,6 +69,25 @@ class User(Document):
 
         return data
 
+class Comment(EmbeddedDocument):
+    content = StringField(max_length=5000)
+    user = ReferenceField(User)
+    created = DateTimeField(required=True, default=datetime.datetime.now())
+    # comments = ListField(EmbeddedDocumentField('Comment'))
+    def to_public_json(self):
+        data = {
+                "com_id": -1,
+                "aut_id": str(self.user.id),
+                "pubdate": self.created,
+                "content": self.content,
+                "is_top": 0,
+                "aut_name": self.user.name,
+                "aut_photo": self.user.photo,
+                "like_count": 0,
+                "reply_count": 0,
+                "is_liking": False
+        }
+        return data
 
 class Cover(Document):
     type = IntField(required=True)
@@ -87,6 +109,7 @@ class Article(Document):
     user = ReferenceField(User, reverse_delete_rule=CASCADE)
     created = DateTimeField(required=True, default=datetime.datetime.now())
     status = IntField(required=True)
+    comments = ListField(EmbeddedDocumentField(Comment))
 
     meta = {'queryset_class': CustomQuerySet}
 
@@ -141,6 +164,7 @@ class Img(Document):
 
 # 1606806890174
 # 1606620445458
+#1599394834
 # if __name__ == '__main__':
     # article = Article.objects().first()
     #

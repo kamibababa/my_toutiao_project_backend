@@ -9,7 +9,7 @@ from flask import jsonify, request, send_from_directory
 from mongoengine import Q
 
 import config
-from models import User, Channel, Img, Article, Cover
+from models import User, Channel, Img, Article, Cover, Comment
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import app
@@ -231,4 +231,64 @@ def get_article_by_id(userid,articleid):
     return jsonify({
         "message": 'OK',
         "data": article.to_public_json_client()
+    })
+
+@app.route("/app/v1_0/comments", methods=["POST"])
+@login_required
+def add_aritcle_comment(userid):
+    user = User.objects(id=userid).first()
+    body = request.json
+    content = body.get('content')
+    articleid = body.get('target')
+    comment = Comment(
+        content=content,
+        user=user
+    )
+    article = Article.objects(id=articleid).first()
+    article.comments.append(comment)
+    article.save()
+
+    return jsonify({
+        "message": 'OK',
+        "data": {
+            "com_id": -1,
+            "target": articleid,
+            "art_id": articleid,
+            "new_obj": {
+                "com_id": -1,
+                "aut_id": str(user.id),
+                "pubdate": comment.created,
+                "content": comment.content,
+                "is_top": 0,
+                "aut_name": user.name,
+                "aut_photo": user.photo,
+                "like_count": 0,
+                "reply_count": 0
+            }
+        }
+    })
+
+@app.route("/app/v1_0/comments", methods=["GET"])
+@login_required
+def get_comments_by_articleid(userid):
+    # user = User.objects(id=userid).first()
+    param = request.args
+    articleid = param.get('source')
+    per_page = int(param.get('limit'))
+    if param.get('offset'):
+        page = int(param.get('offset'))
+    else:
+        page = 0
+
+    article = Article.objects(id=articleid).first()
+    comments = article.comments[(page+1) * per_page-1::-1]
+    results = [comment.to_public_json() for comment in comments]
+    return jsonify({
+        "message": 'OK',
+        "data": {
+            "total_count": len(article.comments),
+            "end_id": 1599394834,
+            "last_id": 1599394834,
+            "results": results
+        }
     })
