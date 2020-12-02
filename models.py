@@ -112,6 +112,8 @@ class Article(Document):
     created = DateTimeField(required=True, default=datetime.datetime.now())
     status = IntField(required=True)
     comments = ListField(EmbeddedDocumentField(Comment))
+    user_collect = ListField(ReferenceField(User, reverse_delete_rule=CASCADE))
+    is_collected = BooleanField(required=False)
 
     meta = {'queryset_class': CustomQuerySet}
 
@@ -144,6 +146,7 @@ class Article(Document):
             "aut_name":self.user.name,
             "aut_id":str(self.user.id),
             "content":self.content,
+            "is_collected":self.is_collected,
             "cover":self.cover.to_public_json()
         }
         return data

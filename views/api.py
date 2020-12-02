@@ -227,12 +227,15 @@ def getArticlesBySearchWord(userid):
 def get_article_by_id(userid,articleid):
     user = User.objects(id=userid).first()
     article = Article.objects(id=articleid).first()
-    user_followed = user.user_followed
-
-    if article.user.name in [u["name"] for u in user_followed]:
+    if article.user in user.user_followed:
         is_followed = True
     else:
         is_followed = False
+
+    if user.name in [u["name"] for u in article.user_collect]:
+        article.is_collected = True
+    else:
+        article.is_collected = False
 
     json_result = {
         "message": 'OK',
@@ -348,5 +351,48 @@ def cancel_following_user(userid, uid):
             "message": '取消关注失败，未关注该用户',
             "data": {
                 "target": following_uid
+            }
+        })
+
+@app.route("/app/v1_0/article/collections", methods=["POST"])
+@login_required
+def collect_article(userid):
+    article_id = request.json.get('target')
+
+    user = User.objects(id=userid).first()
+    article = Article.objects(id=article_id).first()
+    user_collect = article.user_collect
+    user_collect.append(user)
+    article.save()
+
+    return jsonify({
+        "message": '收藏成功',
+        "data": {
+            "target": article_id
+        }
+    })
+
+@app.route("/app/v1_0/article/collections/<string:article_id>", methods=["DELETE"])
+@login_required
+def cancel_collect_article(userid, article_id):
+    article = Article.objects(id=article_id).first()
+    user = User.objects(id=userid).first()
+    user_collect = article.user_collect
+    if user.name in [u["name"] for u in user_collect]:
+        # User already collect
+        user_collect_index = [d.name for d in user_collect].index(user.name)
+        user_collect.pop(user_collect_index)
+        article.save()
+        return jsonify({
+            "message": '取消收藏成功',
+            "data": {
+                "target":article_id
+            }
+        })
+    else:
+        return jsonify({
+            "message": '取消收藏失败，未收藏该文章',
+            "data": {
+                "target": article_id
             }
         })
