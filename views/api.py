@@ -227,7 +227,7 @@ def getArticlesBySearchWord(userid):
 def get_article_by_id(userid,articleid):
     user = User.objects(id=userid).first()
     article = Article.objects(id=articleid).first()
-    if article.user in user.user_followed:
+    if article.user in user.user_following:
         is_followed = True
     else:
         is_followed = False
@@ -315,9 +315,9 @@ def following_user(userid):
     })
     userFollowing = User.objects(id=following_uid).first()
     user = User.objects(id=userid).first()
-    user_followed = user.user_followed
+    user_following = user.user_following
 
-    user_followed.append(userFollowing)
+    user_following.append(userFollowing)
     user.save()
     return jsonify({
         "message": '关注成功',
@@ -333,12 +333,12 @@ def cancel_following_user(userid, uid):
 
     userFollowing = User.objects(pk=following_uid).first()
     user = User.objects(id=userid).first()
-    user_followed = user.user_followed
+    user_following = user.user_following
 
-    if userFollowing.name in [u["name"] for u in user_followed]:
+    if userFollowing.name in [u["name"] for u in user_following]:
         # User already agree
-        user_collect_index = [d.name for d in user_followed].index(userFollowing.name)
-        user_followed.pop(user_collect_index)
+        user_collect_index = [d.name for d in user_following].index(userFollowing.name)
+        user_following.pop(user_collect_index)
         user.save()
         return jsonify({
             "message": '取消关注成功',
@@ -463,11 +463,11 @@ def get_user_following(userid):
 
     data = {}
     try:
-        user_followed = user.user_followed
+        user_following = user.user_following
 
         data = {
             "message": "OK",
-            "total_count": len(user_followed),
+            "total_count": len(user_following),
             "page": 1,
             "per_page": 10,
             "data": {
@@ -476,7 +476,7 @@ def get_user_following(userid):
                     "name": user.name,
                     "photo": config.base_url + user.photo,
                     "fans_count": 9,
-                } for user in user_followed]
+                } for user in user_following]
             }
         }
     except:

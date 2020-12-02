@@ -56,7 +56,7 @@ class User(Document):
     intro = StringField(required=True)
     email = StringField(required=True, unique=True)
     channels = ListField(ReferenceField(Channel))
-    user_followed = ListField(ReferenceField("User", reverse_delete_rule=CASCADE))
+    user_following = ListField(ReferenceField("User", reverse_delete_rule=CASCADE))
     birthday = StringField(required=True,default='2000-01-02')
 
     def to_public_json(self):
