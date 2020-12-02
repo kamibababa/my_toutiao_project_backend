@@ -452,3 +452,34 @@ def update_user_avatar(userid):
                 "photo": filename
             }
         })
+
+
+@app.route("/app/v1_0/user/followings", methods=["GET"])
+@login_required
+def get_user_following(userid):
+    user = User.objects(id=userid).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    data = {}
+    try:
+        user_followed = user.user_followed
+
+        data = {
+            "message": "OK",
+            "total_count": len(user_followed),
+            "page": 1,
+            "per_page": 10,
+            "data": {
+                    "results": [{
+                    "id": str(user.id),
+                    "name": user.name,
+                    "photo": config.base_url + user.photo,
+                    "fans_count": 9,
+                } for user in user_followed]
+            }
+        }
+    except:
+        print('error')
+
+    return jsonify(data)
