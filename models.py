@@ -57,9 +57,12 @@ class User(Document):
     email = StringField(required=True, unique=True)
     channels = ListField(ReferenceField(Channel))
     user_followed = ListField(ReferenceField("User", reverse_delete_rule=CASCADE))
+    birthday = StringField(required=True,default='2000-01-02')
 
     def to_public_json(self):
         data = {
+            "birthday": self.birthday,
+            "id":str(self.id),
             "mobile":self.mobile,
             "name": self.name,
             "created": self.created.strftime("%Y-%m-%d %H:%M:%S"),
@@ -172,16 +175,16 @@ class Img(Document):
 # 1606620445458
 #1599394834
 # if __name__ == '__main__':
-    # hashed_password = generate_password_hash('246810')
-    # User(
-    #     mobile='13911111112',
-    #     code=hashed_password,
-    #     photo='http://toutiao-img.itheima.net/FuyELvGh8jbise6dfoEr0W7luPLq',
-    #     gender=1,
-    #     name='lisi',
-    #     intro='lisiguang',
-    #     email='lisiguang@qq.com'
-    # ).save()
+#     hashed_password = generate_password_hash('246810')
+#     User(
+#         mobile='13911111113',
+#         code=hashed_password,
+#         photo='http://toutiao-img.itheima.net/FuyELvGh8jbise6dfoEr0W7luPLq',
+#         gender=1,
+#         name='wangwu',
+#         intro='wangwuwu',
+#         email='wangwu@qq.com'
+#     ).save()
     # article = Article.objects().first()
     #
     # millisec = article.created.timestamp() * 1000

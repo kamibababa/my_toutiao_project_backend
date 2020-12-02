@@ -396,3 +396,30 @@ def cancel_collect_article(userid, article_id):
                 "target": article_id
             }
         })
+
+@app.route("/app/v1_0/user/profile", methods=["GET"])
+@login_required
+def get_user_profile_client(userid):
+    user = User.objects(id=userid).first()
+
+    return jsonify({
+        "message": 'OK',
+        "data": user.to_public_json()
+    })
+
+@app.route("/app/v1_0/user/profile", methods=["PATCH"])
+@login_required
+def update_user_profile(userid):
+    user = User.objects(id=userid).first()
+    body = request.json
+    if body.get("gender") is not None:
+        user.gender = int(body.get("gender"))
+    if body.get("name"):
+        user.name = body.get("name")
+    if body.get("birthday"):
+        user.birthday = body.get("birthday")
+    user.save()
+    return jsonify({
+        "message": 'OK',
+        "data": user.to_public_json()
+    })
