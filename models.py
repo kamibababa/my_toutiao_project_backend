@@ -117,6 +117,7 @@ class Article(Document):
             "title" : self.title,
             "pubdate":self.created,
             "aut_name":self.user.name,
+            "content":self.content,
             "cover":self.cover.to_public_json()
         }
         return data

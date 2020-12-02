@@ -221,3 +221,14 @@ def getArticlesBySearchWord(userid):
             "results": paginated_articles.to_public_json_client()
         }
     })
+
+@app.route("/app/v1_0/articles/<string:articleid>", methods=["GET"])
+@login_required
+def get_article_by_id(userid,articleid):
+    # user = User.objects(id=userid).first()
+    article = Article.objects(id=articleid).first()
+
+    return jsonify({
+        "message": 'OK',
+        "data": article.to_public_json_client()
+    })
